@@ -3,7 +3,7 @@ import {
   type DefaultSession,
   type NextAuthOptions,
 } from "next-auth";
-import DiscordProvider from "next-auth/providers/discord";
+import GoogleProvider from "next-auth/providers/google";
 
 import { env } from "~/env";
 
@@ -42,11 +42,18 @@ export const authOptions: NextAuthOptions = {
         id: token.sub,
       },
     }),
+    signIn: ({ account, profile }) => {
+      if (account?.provider === "google") {
+        return !!profile?.email;
+      }
+      return true;
+    },
   },
+  secret: env.NEXTAUTH_SECRET,
   providers: [
-    DiscordProvider({
-      clientId: env.DISCORD_CLIENT_ID,
-      clientSecret: env.DISCORD_CLIENT_SECRET,
+    GoogleProvider({
+      clientId: env.GOOGLE_CLIENT_ID,
+      clientSecret: env.GOOGLE_CLIENT_SECRET,
     }),
     /**
      * ...add more providers here.
