@@ -1,6 +1,6 @@
 "use client"
 import { type Session } from 'next-auth';
-import React from 'react'
+import React, { useEffect } from 'react'
 import { cn } from '~/lib/utils';
 import { api } from '~/trpc/react';
 import SignOutButton from './SignOutButton';
@@ -12,18 +12,23 @@ const WalletDisplay: React.FC<{
     session: Session | null
 }> = ({session}) => {
     const [signature, setSignature] = React.useState<string>("")
+    const [sdk, setSdk] = React.useState<MetaKeep | null>(null)
 
     const {data, isLoading} = api.wallets.getWallet.useQuery({emailId: session?.user.email})
 
-    const sdk = new MetaKeep({
+    useEffect(()=> {
+      const sdk = new MetaKeep({
       appId: env.NEXT_PUBLIC_METAKEEP_APP_ID,
       user: {
         email: session?.user.email,
-      },
-    });
+        },
+      });
+      setSdk(sdk)
+    }, [session?.user.email])
+
 
     const signMessage = async (message: string, reason: string) => {
-
+      if (!sdk) return
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const r = (await sdk.signMessage(message, reason)) as {
         signature: string;
