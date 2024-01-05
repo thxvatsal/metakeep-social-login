@@ -35,18 +35,20 @@ declare module "next-auth" {
  */
 export const authOptions: NextAuthOptions = {
   callbacks: {
-    session: ({ session, token }) => ({
-      ...session,
-      user: {
-        ...session.user,
-        id: token.sub,
-      },
-    }),
-    signIn: ({ account, profile }) => {
-      if (account?.provider === "google") {
+    session: async ({ session, token }) => {
+      return {
+        ...session,
+        user: {
+          ...session.user,
+          id: token.sub,
+        },
+      };
+    },
+    signIn: async ({ account, profile }) => {
+      if (account?.provider === "google" && profile?.email) {
         return !!profile?.email;
       }
-      return true;
+      return false;
     },
   },
   secret: env.NEXTAUTH_SECRET,
