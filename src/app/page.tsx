@@ -1,15 +1,18 @@
+import { useSession } from "next-auth/react";
 import SignInButton from "~/components/layouts/SignInButton";
 import WalletDisplay from "~/components/layouts/WalletDisplay";
 import { cn } from "~/lib/utils";
 
-import { getServerAuthSession } from "~/server/auth";
 
-export default async function Home() {
-  const session = await getServerAuthSession();
+export default function Home() {
+  const {data} = useSession({
+    required: true,
+  
+  })
 
   return (
       <main className={cn("h-screen w-screen flex justify-center items-center bg-background")}>
-        {!session ? <SignInButton />: <WalletDisplay session={session} />}
+        {!data ? <SignInButton />: <WalletDisplay session={data} />}
       </main>
   );
 }
